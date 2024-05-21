@@ -71,22 +71,7 @@ import datetime as dt
 from collections import Counter
 ```
 
-
-```python
-df = pd.read_csv("/Users/adel/Desktop/Masters Thesis/datashare/datashare.csv")
-```
-
-
-```python
-df.head()
-```
-
 ### Discover the data set 
-
-
-```python
-df.columns
-```
 
 Here's a detailed description of the variables, which are commonly used in financial and economic research, particularly in the context of firm characteristics and stock market analysis:
 
@@ -189,45 +174,14 @@ Here's a detailed description of the variables, which are commonly used in finan
 95. **sic2**: The first two digits of the Standard Industrial Classification code.
 
 
-```python
-df.info()
-```
-
 ### Filter the data from 2005 to 2016
 As I mentioned before, I am going to extract only a portion from the data due to its high dimensionality. The extraction process will be from january of 2005 to december of 2016.
 
 
-```python
-#create a copy of data frame
-df0 = df.copy()
-```
-
-
-```python
-#check for unique dates
-df0['DATE'].unique()
-```
-
 The first data point for the year 2005 is: **20050131**
 Therefore, I am going to subset the data to account for all data point beyond 2005-01-31. Call the new data frame *df1*
 
-
-```python
-df1 = df0[df0['DATE'] >= 20050131]
-```
-
-
-```python
-df2 = df1.copy()
-```
-
 ### Dealing with dates
-
-
-```python
-df2['DATE'].unique()
-```
-
 
 ```python
 # Assuming 'DATE' is the datetime column
@@ -241,24 +195,10 @@ df2['parsed_date'] = pd.to_datetime(df2['custom_date'], format='%Y%m%d')
 print(df2[['DATE', 'custom_date', 'parsed_date']].head())
 ```
 
-
-```python
-# Print unique datetime values to see a sample
-print(df2['parsed_date'].unique()[:12])  # Print the first 12 unique datetime values
-
-```
-
-
 ```python
 #Create the final date column which takes the correct date format without timestamp
 df2['date'] = df2['parsed_date'].dt.date
 ```
-
-
-```python
-print(df2['date'].unique()[:12]) 
-```
-
 
 ```python
 #Drop the DATE, custom date, and parsed date columns
@@ -304,13 +244,6 @@ print(df2['date'].dtype)
 
 ### Dealing with missing values
 
-
-```python
-#Create a copy of df2
-df3 = df2.copy()
-```
-
-
 ```python
 print(df3.isna().sum())
 ```
@@ -322,79 +255,12 @@ It looks like the dataframe contains a significant amount of missing values, the
 ##### Create a visualization for the COUNT of missing values
 
 
-```python
-# Calculate the number of missing values per column
-missing_data_counts = df3.isnull().sum()
-
-# Plotting
-fig, ax = plt.subplots(figsize=(20, 10))
-ax.bar(missing_data_counts.index, missing_data_counts.values)
-
-# Set the tick positions and labels
-ax.set_xticks(np.arange(len(missing_data_counts)))  # Set ticks at every integer index
-ax.set_xticklabels(missing_data_counts.index, rotation=90)  # Rotate tick labels for readability
-
-plt.show()
-```
-
 ##### Create a Visualization for the percentage of missing values from the total dataset
 
-
-```python
-# Calculate the percentage of missing data for each column
-missing_percentage = df3.isnull().sum() / len(df3) * 100
-
-# Sort the series for better visualization if you have many variables
-missing_percentage_sorted = missing_percentage.sort_values(ascending=False)
-
-# Display the results
-print(missing_percentage_sorted)
-```
-
-
-```python
-# Set the visual style
-sns.set(style="whitegrid")
-
-# Creating the plot
-plt.figure(figsize=(20, 10))  # Adjust the size as needed
-sns.barplot(x=missing_percentage_sorted.values, y=missing_percentage_sorted.index)
-plt.title('Percentage of Missing Data by Variable')
-plt.xlabel('Percentage of Missing Data')
-plt.ylabel('Variables')
-plt.tight_layout()
-# Show the plot
-plt.show()
-```
 
 ##### Create a Visualization using plotly 
 The Plotly library is a powerful, interactive graphing library that lets you create high-quality, interactive, and aesthetically pleasing graphs directly from your data. It supports a wide range of static, animated, and interactive visualizations and is particularly suited for web and interactive applications. Plotly is available for Python, R, and JavaScript.
 
-
-```python
-# Create a horizontal bar plot using Plotly Express
-
-fig = px.bar(missing_percentage_sorted,
-             x=missing_percentage_sorted.values,
-             y=missing_percentage_sorted.index,
-             orientation='h',  # This makes the bar horizontal
-             labels={'y': 'Variables', 'x': 'Percentage of Missing Data'},  # Labeling axes
-             title='Percentage of Missing Data by Variable')
-
-# Improve layout and styling
-fig.update_layout(
-    autosize=False,  # Allow manual resizing
-    width=1000,      # Width of the figure in pixels
-    height=1500,     # Height of the figure in pixels, adjust as needed for the number of variables
-    yaxis_title='Variables',
-    xaxis_title='Percentage of Missing Data',
-    title={'x':0.5, 'xanchor': 'center'},  # Center the title
-    template='simple_white'
-)
-
-# Show the interactive plot
-fig.show()
-```
 
 ### Missing Values Imputation
 
@@ -447,62 +313,6 @@ Here are some common techniques for imputing missing values in stock market data
 
 
 #### Checking for data distribution
-
-
-```python
-df3['tb'].describe()
-```
-
-
-```python
-# Assuming the data ranges from some minimum to a maximum, you could set bins like this:
-bin_width = 0.10  # Change the width as needed
-#bins = np.arange(start=df3['tb'].min(), stop=df['tb'].max() + bin_width, step=bin_width)
-bins = np.arange(start=-10, stop=10 + bin_width, step=bin_width)
-
-plt.figure(figsize=(10,5))
-sns.histplot(df['tb'].dropna(), bins=bins)
-plt.title('tb histogram');
-plt.show()
-
-```
-
-
-```python
-df3['roic'].describe()
-```
-
-
-```python
-# Assuming the data ranges from some minimum to a maximum, you could set bins like this:
-bin_width = 0.01  # Change the width as needed
-#bins = np.arange(start=df3['roic'].min(), stop=df3['roic'].max() + bin_width, step=bin_width)
-bins = np.arange(start=-1, stop=3 + bin_width, step=bin_width)
-
-plt.figure(figsize=(10,5))
-sns.histplot(df3['roic'].dropna(), bins=bins)
-plt.title('roic histogram');
-plt.show()
-
-```
-
-
-```python
-df3['rd_mve'].describe()
-```
-
-
-```python
-# Assuming the data ranges from some minimum to a maximum, you could set bins like this:
-bin_width = 0.01  # Change the width as needed
-#bins = np.arange(start=df3['roic'].min(), stop=df3['roic'].max() + bin_width, step=bin_width)
-bins = np.arange(start=-0.02, stop=0.5 + bin_width, step=bin_width)
-
-plt.figure(figsize=(10,5))
-sns.histplot(df3['rd_mve'].dropna(), bins=bins)
-plt.title('rd_mve histogram');
-plt.show()
-```
 
 It looks like some of the variables are normally distributed and some are skewed. **Therefore**, I decided to impute missing values using <u>**cross-sectional median**</u>
 
@@ -732,23 +542,8 @@ selected_permno = np.random.choice(unique_permno, num_permno_to_select, replace=
 df_50 = df1[df1['permno'].isin(selected_permno)]
 ```
 
-
-```python
-df_50['permno'].unique()
-```
-
-
-```python
-df_50['date'] = pd.to_datetime(df_50['date'])
-df_50['year'] = df_50['date'].dt.year
-```
-
-
-```python
-df_50_f = df_50.copy()
-```
-
 #### Create a nested for loop to iterate over every permno for each year and fit a PCA model 
+
 By creating a nested for loop that iterates on both a unique stock ID and a unique date, this will take into consideration that PCA model is being applied not only on a time series data but on a Panel Data (Time Series Data + Cross-sectional Data)
 
 **Limitations:** It has an increased computation cost since its fitting a pca model on every stock ID and specific year 
